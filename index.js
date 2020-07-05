@@ -4,19 +4,13 @@ var fs = require('fs');
 var path = require('path');
 var readline = require('readline');
 const { execSync, spawnSync } = require('child_process');
-const { relative } = require('path');
 var exec = require('child_process').exec;
 var twitterInterface = require('./twitterInterface');
 var wordReplacer = require('./wordreplacer');
 var allPlayPaths = [];
+var wordsToReplace;
+var replacedWordCount;
 
-function callback(err, data) {
-    if (err) {
-        console.log(err);
-        return;
-    }
-    console.log(data);
-}
 
 GetPlayPaths();
 
@@ -24,11 +18,14 @@ ConstructTweet();
 
 
 function ConstructTweet() {
+    wordsToReplace = Math.ceil(Math.random() * 4.0);
+    replacedWordCount = 0;
     var currentPlayPath = GetRandomPlayPath();
     GetRandomStartingLineIndex(currentPlayPath, function (startingIndex) {
         GetPassage(currentPlayPath, startingIndex, function (passage) {
             console.log(passage);
-            wordReplacer.ReplaceWordInPassage(passage, function (err, replacedPassage) {
+
+            ReplaceMultipleWords(passage, function (err, replacedPassage) {
                 if (err) {
                     ConstructTweet();
                     return;
@@ -38,6 +35,22 @@ function ConstructTweet() {
             });
         });
 
+    });
+}
+function ReplaceMultipleWords(passage, callback) {
+    wordReplacer.ReplaceWordInPassage(passage, function (err, replacedPassage) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        replacedWordCount++;
+        if (replacedWordCount >= wordsToReplace) {
+            callback(null, replacedPassage);
+            return
+        }
+        //console.log(replacedPassage);
+
+        ReplaceMultipleWords(replacedPassage, callback);
     });
 }
 

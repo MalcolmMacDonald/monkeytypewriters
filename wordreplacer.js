@@ -2,6 +2,8 @@ var https = require('https');
 var commonWords = require('fs').readFileSync(__dirname + "/CommonEnglishWords.txt").toString();
 const { Console } = require('console');
 
+
+
 const uncommonWord = (value, index, self) => {
     return !commonWords.includes(singleWord(value).toLowerCase());
 }
@@ -57,17 +59,19 @@ function GetRhymingWord(word, callback) {
         callback(new Error("Attempted to find rhyme for word with no letters characters"));
         return;
     }
-    https.get("https://api.datamuse.com/words?sl=" + word, (res) => {
+    https.get("https://api.datamuse.com/words?rel_rhy=" + word, (res) => {
         var data = "";
         res.on('data', (chunk) => {
             data += chunk;
         });
         res.on('end', () => {
-            var dataObject = JSON.parse(data);
+            var dataObject = JSON.parse(data).map(element => element.word).reverse();
             if (dataObject.length == 0) {
                 callback(new Error("Found no rhyming words"));
+                return;
             }
-            var elegibleWord = dataObject.find((element) => element.word != word).word;
+
+            var elegibleWord = dataObject.find((element) => element != word);
             callback(null, elegibleWord);
         });
         res.on('error', () => {
@@ -75,6 +79,9 @@ function GetRhymingWord(word, callback) {
         });
     });
 }
+
+
+
 function caseWord(word, upper) {
     return String.prototype[upper ? "toUpperCase" : "toLowerCase"].apply(word[0]) + word.slice(1);
 }
