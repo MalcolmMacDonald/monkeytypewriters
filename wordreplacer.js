@@ -1,5 +1,5 @@
 var https = require('https');
-var commonWords = require('fs').readFileSync(__dirname + "\\CommonEnglishWords.txt").toString();
+var commonWords = require('fs').readFileSync(__dirname + "/CommonEnglishWords.txt").toString();
 const { Console } = require('console');
 
 const uncommonWord = (value, index, self) => {
