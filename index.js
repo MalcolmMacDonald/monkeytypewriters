@@ -47,7 +47,7 @@ function GetPlayPaths() {
     var playsDir = fs.opendirSync(playsDirPathName);
     var dirEntry;
     while ((dirEntry = playsDir.readSync()) !== null) {
-        allPlayPaths.push(playsDirPathName + "\\" + dirEntry.name);
+        allPlayPaths.push(playsDirPathName + "/" + dirEntry.name);
     }
     playsDir.closeSync();
 }
