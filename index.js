@@ -4,9 +4,9 @@ var fs = require('fs');
 var path = require('path');
 var readline = require('readline');
 const { execSync, spawnSync } = require('child_process');
-var exec = require('child_process').exec;
 var twitterInterface = require('./twitterInterface');
 var wordReplacer = require('./wordreplacer');
+var dateHasher = require('./datehasher');
 var allPlayPaths = [];
 var wordsToReplace;
 var replacedWordCount;
@@ -14,15 +14,16 @@ var replacedWordCount;
 
 GetPlayPaths();
 
+
 ConstructTweet();
 
 
 function ConstructTweet() {
     wordsToReplace = Math.ceil(Math.random() * 4.0);
     replacedWordCount = 0;
-    var currentPlayPath = GetRandomPlayPath();
-    GetRandomStartingLineIndex(currentPlayPath, function (startingIndex) {
-        GetPassage(currentPlayPath, startingIndex, function (passage) {
+    dateHasher.getPassageInfo(allPlayPaths, new Date(), function (err, passageInfo) {
+
+        GetPassage(passageInfo, function (passage) {
             console.log(passage);
 
             ReplaceMultipleWords(passage, function (err, replacedPassage) {
@@ -31,10 +32,9 @@ function ConstructTweet() {
                     return;
                 }
                 console.log(replacedPassage);
-                twitterInterface.tweet(replacedPassage);
+                //twitterInterface.tweet(replacedPassage);
             });
         });
-
     });
 }
 function ReplaceMultipleWords(passage, callback) {
@@ -66,44 +66,9 @@ function GetPlayPaths() {
 }
 
 
-function GetRandomPlayPath() {
-    var index = Math.floor(Math.random() * (allPlayPaths.length - 1));
-    var fileName = allPlayPaths[index];
-    console.log(fileName);
-    return fileName;
 
-}
-
-
-function GetRandomStartingLineIndex(filePath, callback) {
-
-    var totalLines = execSync('wc -l ' + "\"" + filePath + "\"").toString().split(' ')[0];
-
-    var initialLine = Math.floor(Math.random() * (totalLines - 1));
-    var readInterface = readline.createInterface({
-        input: fs.createReadStream(filePath),
-        termal: false
-    });
-    var currentLine = 1;
-    readInterface.on('line', function (line) {
-
-        if (currentLine == initialLine) {
-            if (line.startsWith(' ')) {
-                initialLine++;
-            }
-            else {
-                //console.log(initialLine);
-                //console.log(line);
-                readInterface.removeAllListeners();
-                readInterface.close();
-                callback(initialLine);
-            }
-        }
-
-        currentLine++;
-    });
-}
-function GetPassage(filePath, startingLineIndex, callback) {
+function GetPassage(passageInfo, callback) {
+    var filePath = allPlayPaths[passageInfo.playIndex];
     var readInterface = readline.createInterface({
         input: fs.createReadStream(filePath),
         termal: false
@@ -112,8 +77,8 @@ function GetPassage(filePath, startingLineIndex, callback) {
     var tweetText = "";
     readInterface.on('line', function (line) {
 
-        if (currentLine >= startingLineIndex) {
-            if ((line.length + tweetText.length) > 240 || (currentLine > startingLineIndex && !line.startsWith(' '))) {
+        if (currentLine >= passageInfo.lineIndex) {
+            if ((line.length + tweetText.length) > 240 || (currentLine > passageInfo.lineIndex && !line.startsWith(' '))) {
                 readInterface.removeAllListeners();
                 readInterface.close();
                 callback(tweetText);
