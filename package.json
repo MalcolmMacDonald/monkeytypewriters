@@ -1,0 +1,25 @@
+{
+  "name": "monkeytypewriters",
+  "version": "1.0.0",
+  "description": "Twitter bot that posts the works of monkeys on typewriters.",
+  "main": "index.js",
+  "scripts": {
+    "start": "index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MalcolmMacDonald/monkeytypewriters.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MalcolmMacDonald/monkeytypewriters/issues"
+  },
+  "homepage": "https://github.com/MalcolmMacDonald/monkeytypewriters#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "twit": "^2.2.11",
+    "wc": "0.0.1"
+  }
+}
