@@ -32,7 +32,7 @@ function ConstructTweet() {
                     return;
                 }
                 console.log(replacedPassage);
-                //twitterInterface.tweet(replacedPassage);
+                twitterInterface.tweet(replacedPassage);
             });
         });
     });
